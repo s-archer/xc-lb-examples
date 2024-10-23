@@ -7,6 +7,10 @@ variable "console_url" {
   default = ""
 }
 
+variable "prefix" {
+  type = string
+}
+
 variable "tenant" {
   type = string
 }
@@ -36,10 +40,6 @@ variable "origin_site" {
 }
 
 variable "origin_fqdn" {
-  type = string
-}
-
-variable "origin_k8s_service_name" {
   type = string
 }
 

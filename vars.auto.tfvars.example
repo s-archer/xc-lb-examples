@@ -6,7 +6,8 @@ namespace    = "my-namespace"
 
 # F5 Distributed Cloud LB Details - Per App
 domain                  = "my.example.com"
-shortname               = "example"
+shortname               = "xc-examples"
+prefix                  = "my-prefix-"
 origin_fqdn             = ""
 origin_ip               = ""
 origin_port             = 80
