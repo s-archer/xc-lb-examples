@@ -1,5 +1,25 @@
-# F5 XC does not currently support POST health check.  But it is possible to craft a POST Request using TCP monitor.
-#  TCP monitor requires that you encode the HTTP request as hex encoded string.
+# F5 XC does not currently support POST health check (GET only).  But it is possible to craft a POST Request using TCP monitor.
+ # F5 XC TCP monitors require that you encode the HTTP request as hex encoded string.
+
+locals {
+        # Specify your health check HTTP request in ascci format: 
+    http_request = <<-EOF
+        POST /api/sentence/locations HTTP/1.1
+        Host: aws.sentence.archf5.com
+        Connection: Keep-Alive
+        Content-Length: ${length(local.json_body)}
+        User-Agent: F5-XC-Healthcheck
+        Content-Type: application/json
+        Accept: */*
+        Accept-Encoding: gzip, deflate
+
+        ${local.json_body}
+    EOF
+        # Specify your health check HTTP body in ascci format (leave blank if none): 
+    json_body = "{\"value\":\"cave\"}"
+        # Specify your expected health check HTTP response in ascci format:
+    http_response = "HTTP/1.1 200 OK"
+}
 
 resource "volterra_healthcheck" "http-post-using-tcp-hex" {
   name      = "http-post-using-tcp-hex"
@@ -15,26 +35,7 @@ resource "volterra_healthcheck" "http-post-using-tcp-hex" {
   jitter_percent              = 30
 }
 
-
-# The below is not complete yet anyway, and would not work.
-locals {
-    http_request = <<-EOF
-        POST /api/sentence/locations HTTP/1.1
-        Host: aws.sentence.archf5.com
-        Connection: Keep-Alive
-        Content-Length: ${length(local.json_body)}
-        User-Agent: F5-XC-Healthcheck
-        Content-Type: application/json
-        Accept: */*
-        Accept-Encoding: gzip, deflate
-
-        ${local.json_body}
-    EOF
-    json_body = "{\"value\":\"cave\"}"
-    http_response = "HTTP/1.1 200 OK"
-}
-
-# This assumes that terraform has local access to bash with printf, sed, xxd and tr
+# This resource assumes that terraform has local access to bash with printf, sed, xxd and tr
 # The purpose is to clean up CRLF characters and hex encode the HTTP request
 resource "null_resource" "hex_encode_http_request" {
   provisioner "local-exec" {
@@ -54,7 +55,7 @@ output "http_request" {
   value       = local.http_request
 }
 
-# This assumes that terraform has local access to bash with printf, sed, xxd and tr
+# This resource assumes that terraform has local access to bash with printf, sed, xxd and tr
 # The purpose is to clean up CRLF characters and hex encode the HTTP response
 resource "null_resource" "hex_encode_http_response" {
   provisioner "local-exec" {
@@ -78,7 +79,7 @@ output "hex_encoded_http_response" {
   value       = data.local_file.hex_encoded_response.content
 }
 
-# Unable to use the hex provider, because it is not compatible with darwin_arm64
+# Unable to use the Terraform hex provider, because it is not compatible with darwin_arm64
 # resource "hex_string" "http-hex" {
 #   data = var.http_request
 # }
@@ -86,4 +87,3 @@ output "hex_encoded_http_response" {
 # output "hex" {
 #   value       = hex_string.http-hex.result
 # }
-
