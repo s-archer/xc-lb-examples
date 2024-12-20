@@ -1,6 +1,6 @@
 # F5 XC No-Code Terraform Module Example
 
-## How to use this project:
+## How to use this example:
 
 Rename `vars.auto.tfvars.example` to `vars.auto.tfvars` and then update the variables as necessary.
 
