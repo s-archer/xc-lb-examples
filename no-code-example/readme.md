@@ -2,7 +2,9 @@
 
 ## How to use this example (XC Administrator)
 
-- In [lb-origin.tf](./modules/no-code/lb-origin.tf) update the references for your organisation WAF policy `volterra_http_loadbalancer.lb.app_firewall.name` and User Identification Policy `volterra_http_loadbalancer.lb.user_identification.name`.
+- In [lb-origin.tf](./modules/no-code/lb-origin.tf) update the references for your: 
+	- Organisation WAF policy `volterra_http_loadbalancer.lb.app_firewall.name`
+	- User Identification Policy `volterra_http_loadbalancer.lb.user_identification.name`
 - Update this readme for use by your application teams
 - Commit to your private git repo.
 
