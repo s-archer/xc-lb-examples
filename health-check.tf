@@ -1,9 +1,9 @@
 # F5 XC does not currently support POST health check (GET only).  But it is possible to craft a POST Request using TCP monitor.
- # F5 XC TCP monitors require that you encode the HTTP request as hex encoded string.
+# F5 XC TCP monitors require that you encode the HTTP request as hex encoded string.
 
 locals {
-        # Specify your health check HTTP request in ascci format: 
-    http_request = <<-EOF
+  # Specify your health check HTTP request in ascci format: 
+  http_request = <<-EOF
         POST /api/sentence/locations HTTP/1.1
         Host: aws.sentence.archf5.com
         Connection: Keep-Alive
@@ -15,24 +15,24 @@ locals {
 
         ${local.json_body}
     EOF
-        # Specify your health check HTTP body in ascci format (leave blank if none): 
-    json_body = "{\"value\":\"cave\"}"
-        # Specify your expected health check HTTP response in ascci format:
-    http_response = "HTTP/1.1 200 OK"
+  # Specify your health check HTTP body in ascci format (leave blank if none): 
+  json_body = "{\"value\":\"cave\"}"
+  # Specify your expected health check HTTP response in ascci format:
+  http_response = "HTTP/1.1 200 OK"
 }
 
 resource "volterra_healthcheck" "http-post-using-tcp-hex" {
   name      = "http-post-using-tcp-hex"
   namespace = var.namespace
   tcp_health_check {
-    send_payload = data.local_file.hex_encoded_request.content
+    send_payload      = data.local_file.hex_encoded_request.content
     expected_response = data.local_file.hex_encoded_response.content
   }
-  healthy_threshold           = 1
-  interval                    = 10
-  timeout                     = 3
-  unhealthy_threshold         = 1
-  jitter_percent              = 30
+  healthy_threshold   = 1
+  interval            = 10
+  timeout             = 3
+  unhealthy_threshold = 1
+  jitter_percent      = 30
 }
 
 # This resource assumes that terraform has local access to bash with printf, sed, xxd and tr
@@ -52,7 +52,7 @@ data "local_file" "hex_encoded_request" {
 }
 
 output "http_request" {
-  value       = local.http_request
+  value = local.http_request
 }
 
 # This resource assumes that terraform has local access to bash with printf, sed, xxd and tr
@@ -72,11 +72,11 @@ data "local_file" "hex_encoded_response" {
 }
 
 output "hex_encoded_http_request" {
-  value       = data.local_file.hex_encoded_request.content
+  value = data.local_file.hex_encoded_request.content
 }
 
 output "hex_encoded_http_response" {
-  value       = data.local_file.hex_encoded_response.content
+  value = data.local_file.hex_encoded_response.content
 }
 
 # Unable to use the Terraform hex provider, because it is not compatible with darwin_arm64
