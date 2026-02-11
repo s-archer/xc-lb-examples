@@ -38,11 +38,6 @@ resource "volterra_origin_pool" "geo_origin" {
     }
   }
 
-  healthcheck {
-    namespace = "s-archer"
-    name      = "arch-http-generic"
-  }
-
   advanced_options {
     enable_subsets {
       endpoint_subsets {
@@ -355,3 +350,196 @@ resource "volterra_http_loadbalancer" "geo_lb_us" {
   disable_waf  = true
   add_location = true
 }
+
+# volterra_http_loadbalancer: geo-respond-rules
+# Provider: volterraedge/volterra v0.11.47
+
+resource "volterra_http_loadbalancer" "geo_respond_rules" {
+  name      = "geo-respond-rules"
+  namespace = "s-archer"
+
+  domains = [
+    "geo-respond.archf5.com",
+    "*.geo-respond.archf5.com",
+  ]
+
+  https_auto_cert {
+    port = 443
+    tls_config { 
+        default_security = true 
+    }
+    http_redirect = false
+    add_hsts      = false
+  }
+
+  advertise_on_public_default_vip = true
+
+  # Explicit in JSON
+  disable_waf  = true
+  add_location = true
+
+  more_option {
+    response_headers_to_add {
+      name   = "Content-Type"
+      value  = "text/html"
+      append = false
+    }
+
+    max_request_header_size      = 60
+    idle_timeout                 = 30000
+    disable_default_error_pages  = false
+  }
+
+  routes {
+    direct_response_route {
+      http_method = "ANY"
+
+      path {
+        prefix = "/"
+      }
+
+      headers {
+        name         = "Host"
+        exact        = "uk-1.geo-respond.archf5.com"
+        invert_match = false
+      }
+
+      route_direct_response {
+        response_code = 200
+        response_body = <<-HTML
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>You are in UK-1 Region</title>
+ <style>
+ html,body{height:100%;margin:0}
+    body{display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    h1{font-size:clamp(2rem, 8vw, 6rem);margin:0}
+  </style>
+</head>
+<body>
+  <h1>You are in UK-1 Region</h1>
+</body>
+</html>
+HTML
+      }
+    }
+  }
+
+  routes {
+    direct_response_route {
+      http_method = "ANY"
+
+      path {
+        prefix = "/"
+      }
+
+      headers {
+        name         = "Host"
+        exact        = "uk-2.geo-respond.archf5.com"
+        invert_match = false
+      }
+
+      route_direct_response {
+        response_code = 200
+        response_body = <<-HTML
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>You are in UK-2 Region</title>
+ <style>
+ html,body{height:100%;margin:0}
+    body{display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    h1{font-size:clamp(2rem, 8vw, 6rem);margin:0}
+  </style>
+</head>
+<body>
+  <h1>You are in UK-2 Region</h1>
+</body>
+</html>
+HTML
+      }
+    }
+  }
+
+  routes {
+    direct_response_route {
+      http_method = "ANY"
+
+      path {
+        prefix = "/"
+      }
+
+      headers {
+        name         = "Host"
+        exact        = "us-1.geo-respond.archf5.com"
+        invert_match = false
+      }
+
+      route_direct_response {
+        response_code = 200
+        response_body = <<-HTML
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>You are in US-1 Region</title>
+ <style>
+ html,body{height:100%;margin:0}
+    body{display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    h1{font-size:clamp(2rem, 8vw, 6rem);margin:0}
+  </style>
+</head>
+<body>
+  <h1>You are in US-1 Region</h1>
+</body>
+</html>
+HTML
+      }
+    }
+  }
+
+  routes {
+    direct_response_route {
+      http_method = "ANY"
+
+      path {
+        prefix = "/"
+      }
+
+      headers {
+        name         = "Host"
+        exact        = "us-2.geo-respond.archf5.com"
+        invert_match = false
+      }
+
+      route_direct_response {
+        response_code = 200
+        response_body = <<-HTML
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>You are in US-2 Region</title>
+ <style>
+ html,body{height:100%;margin:0}
+    body{display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    h1{font-size:clamp(2rem, 8vw, 6rem);margin:0}
+  </style>
+</head>
+<body>
+  <h1>You are in US-2 Region</h1>
+</body>
+</html>
+HTML
+      }
+    }
+  }
+}
+
