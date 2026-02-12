@@ -1,14 +1,14 @@
 
 resource "volterra_origin_pool" "geo_origin" {
   name      = "geo-origin"
-  namespace = "s-archer"
+  namespace = var.namespace
   description            = "TF deploy to show geo-lb"
   endpoint_selection     = "LOCAL_PREFERRED"
   loadbalancer_algorithm = "LB_OVERRIDE"
 
   origin_servers {
     public_name {
-      dns_name         = "geo-lb-uk.archf5.com"
+      dns_name         = format("%s%s", "geo-lb-uk", var.domain)
       refresh_interval = 300
     }
     labels = {
@@ -18,7 +18,7 @@ resource "volterra_origin_pool" "geo_origin" {
 
   origin_servers {
     public_name {
-      dns_name         = "geo-lb-us.archf5.com"
+      dns_name         = format("%s%s", "geo-lb-us", var.domain)
       refresh_interval = 300
     }
     labels = {
@@ -52,7 +52,7 @@ resource "volterra_origin_pool" "geo_origin" {
 
 resource "volterra_origin_pool" "geo_origin_uk_only" {
   name      = "geo-origin-uk-only"
-  namespace = "s-archer"
+  namespace = var.namespace
   description            = "TF deploy to show geo-lb"
   endpoint_selection     = "LOCAL_PREFERRED"
   loadbalancer_algorithm = "LB_OVERRIDE"
@@ -60,7 +60,7 @@ resource "volterra_origin_pool" "geo_origin_uk_only" {
 
   origin_servers {
     public_name {
-      dns_name         = "uk-1.geo-respond.archf5.com"
+      dns_name         = format("%s%s", "uk-1.geo-respond", var.domain)
       refresh_interval = 300
     }
   }
@@ -90,14 +90,14 @@ resource "volterra_origin_pool" "geo_origin_uk_only" {
 
 resource "volterra_origin_pool" "geo_origin_uk_only_fallback" {
   name      = "geo-origin-uk-only-fallback"
-  namespace = "s-archer"
+  namespace = var.namespace
   description            = "TF deploy to show geo-lb"
   endpoint_selection     = "LOCAL_PREFERRED"
   loadbalancer_algorithm = "LB_OVERRIDE"
 
   origin_servers {
     public_name {
-      dns_name         = "uk-2.geo-respond.archf5.com"
+      dns_name         = format("%s%s", "uk-2.geo-respond", var.domain)
       refresh_interval = 300
     }
   }
@@ -127,14 +127,14 @@ resource "volterra_origin_pool" "geo_origin_uk_only_fallback" {
 
 resource "volterra_origin_pool" "geo_origin_us_only" {
   name      = "geo-origin-us-only"
-  namespace = "s-archer"
+  namespace = var.namespace
   description            = "TF deploy to show geo-lb"
   endpoint_selection     = "LOCAL_PREFERRED"
   loadbalancer_algorithm = "LB_OVERRIDE"
 
   origin_servers {
     public_name {
-      dns_name         = "us-1.geo-respond.archf5.com"
+      dns_name         = format("%s%s", "us-1.geo-respond", var.domain)
       refresh_interval = 300
     }
   }
@@ -164,14 +164,14 @@ resource "volterra_origin_pool" "geo_origin_us_only" {
 
 resource "volterra_origin_pool" "geo_origin_us_only_fallback" {
   name      = "geo-origin-us-only-fallback"
-  namespace = "s-archer"
+  namespace = var.namespace
   description            = "TF deploy to show geo-lb"
   endpoint_selection     = "LOCAL_PREFERRED"
   loadbalancer_algorithm = "LB_OVERRIDE"
 
   origin_servers {
     public_name {
-      dns_name         = "us-2.geo-respond.archf5.com"
+      dns_name         = format("%s%s", "us-2.geo-respond", var.domain)
       refresh_interval = 300
     }
   }
@@ -201,9 +201,9 @@ resource "volterra_origin_pool" "geo_origin_us_only_fallback" {
 
 resource "volterra_http_loadbalancer" "geo_lb" {
   name      = "geo-lb"
-  namespace = "s-archer"
+  namespace = var.namespace
 
-  domains = ["geo.archf5.com"]
+  domains = [format("%s%s", "geo", var.domain)]
 
   advertise_on_public_default_vip = true
 
@@ -227,7 +227,7 @@ resource "volterra_http_loadbalancer" "geo_lb" {
 
   default_route_pools {
     pool {
-      namespace = "s-archer"
+      namespace = var.namespace
       name      = volterra_origin_pool.geo_origin.name
     }
     weight   = 1
@@ -267,9 +267,9 @@ resource "volterra_http_loadbalancer" "geo_lb" {
 
 resource "volterra_http_loadbalancer" "geo_lb_uk" {
   name      = "geo-lb-uk"
-  namespace = "s-archer"
+  namespace = var.namespace
 
-  domains = ["geo-lb-uk.archf5.com"]
+  domains = [format("%s%s", "geo-lb-uk", var.domain)]
 
   advertise_on_public_default_vip = true
 
@@ -288,7 +288,7 @@ resource "volterra_http_loadbalancer" "geo_lb_uk" {
 
   default_route_pools {
     pool {
-      namespace = "s-archer"
+      namespace = var.namespace
       name      = volterra_origin_pool.geo_origin_uk_only.name
     }
     weight   = 1
@@ -297,7 +297,7 @@ resource "volterra_http_loadbalancer" "geo_lb_uk" {
 
   default_route_pools {
     pool {
-      namespace = "s-archer"
+      namespace = var.namespace
       name      = volterra_origin_pool.geo_origin_uk_only_fallback.name
     }
     weight   = 1
@@ -310,9 +310,9 @@ resource "volterra_http_loadbalancer" "geo_lb_uk" {
 
 resource "volterra_http_loadbalancer" "geo_lb_us" {
   name      = "geo-lb-us"
-  namespace = "s-archer"
+  namespace = var.namespace
 
-  domains = ["geo-lb-us.archf5.com"]
+  domains = [format("%s%s", "geo-lb-us", var.domain)]
 
   advertise_on_public_default_vip = true
 
@@ -331,7 +331,7 @@ resource "volterra_http_loadbalancer" "geo_lb_us" {
 
   default_route_pools {
     pool {
-      namespace = "s-archer"
+      namespace = var.namespace
       name      = volterra_origin_pool.geo_origin_us_only.name
     }
     weight   = 1
@@ -340,7 +340,7 @@ resource "volterra_http_loadbalancer" "geo_lb_us" {
 
   default_route_pools {
     pool {
-      namespace = "s-archer"
+      namespace = var.namespace
       name      = volterra_origin_pool.geo_origin_us_only_fallback.name
     }
     weight   = 1
@@ -356,11 +356,11 @@ resource "volterra_http_loadbalancer" "geo_lb_us" {
 
 resource "volterra_http_loadbalancer" "geo_respond_rules" {
   name      = "geo-respond-rules"
-  namespace = "s-archer"
+  namespace = var.namespace
 
   domains = [
-    "geo-respond.archf5.com",
-    "*.geo-respond.archf5.com",
+    format("%s%s", "geo-respond", var.domain),
+    format("%s%s", "*.geo-respond", var.domain),
   ]
 
   https_auto_cert {
@@ -400,7 +400,7 @@ resource "volterra_http_loadbalancer" "geo_respond_rules" {
 
       headers {
         name         = "Host"
-        exact        = "uk-1.geo-respond.archf5.com"
+        exact        = format("%s%s", "uk-1.geo-respond", var.domain)
         invert_match = false
       }
 
@@ -438,7 +438,7 @@ HTML
 
       headers {
         name         = "Host"
-        exact        = "uk-2.geo-respond.archf5.com"
+        exact        = format("%s%s", "uk-2.geo-respond", var.domain)
         invert_match = false
       }
 
@@ -476,7 +476,7 @@ HTML
 
       headers {
         name         = "Host"
-        exact        = "us-1.geo-respond.archf5.com"
+        exact        = format("%s%s", "us-1.geo-respond", var.domain)
         invert_match = false
       }
 
@@ -514,7 +514,7 @@ HTML
 
       headers {
         name         = "Host"
-        exact        = "us-2.geo-respond.archf5.com"
+        exact        = format("%s%s", "us-2.geo-respond", var.domain)
         invert_match = false
       }
 
@@ -542,4 +542,3 @@ HTML
     }
   }
 }
-
